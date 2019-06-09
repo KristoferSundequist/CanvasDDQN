@@ -1,0 +1,72 @@
+import { Game } from '../core/index';
+import { canvas } from '../core/utils/canvas';
+import { Ball, Paddle, Brick } from './gameObjects';
+import { generateBricks } from './utils/brickCalculator';
+import BreakoutSettings from './BreakoutSettings';
+
+/**
+ * @property {GameObject[]} gameObjects
+ * @property {boolean} isGameOver;
+ * @property {Controls} _controls}
+ * @property {GameLoop} _gameLoop
+ * @property {Collision} _collision
+ * @property {BreakoutSettings} _settings
+ * @property {number} _reward
+ */
+class Breakout extends Game {
+  constructor({ settings = new BreakoutSettings(), ...rest } = {}) {
+    super({ settings, ...rest });
+  }
+
+  start() {
+    this.reset();
+
+    super.start();
+  }
+
+  reset() {
+    super.reset();
+
+    const {
+      ballRadius,
+      ballVelocity,
+      ballInitialAngle,
+      paddleHeight,
+      paddleWidth,
+      paddleVelocity,
+    } = this._settings;
+
+    this.gameObjects.push(new Ball({
+      x: (canvas.clientWidth + ballRadius) / 2,
+      y: canvas.clientHeight - ballRadius - paddleHeight - 1,
+      game: this,
+      radius: ballRadius,
+      v: ballVelocity,
+      angle: ballInitialAngle,
+    }));
+
+    this.gameObjects.push(new Paddle({
+      x: 0,
+      y: 0,
+      controls: this._controls,
+      width: paddleWidth,
+      height: paddleHeight,
+      v: paddleVelocity,
+    }));
+
+    generateBricks({ ...this._settings }).forEach(brick => this.gameObjects.push(brick));
+  }
+
+  isWon() {
+    return this.gameObjects.filter(object => object instanceof Brick)
+      .length === 0;
+  }
+
+  handleWin() {
+      this.increaseReward(1);
+
+      super.handleWin();
+  }
+}
+
+export default Breakout;
