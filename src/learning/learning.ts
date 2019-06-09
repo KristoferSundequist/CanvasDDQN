@@ -8,7 +8,7 @@ import ExperienceReplayBuffer from './memory'
 import { getModel, cloneModel } from './model'
 import { Rank, Tensor3D, tidy } from '@tensorflow/tfjs'
 
-tf.setBackend('webgl')
+//tf.setBackend('webgl')
 
 const num_actions = actions.ACTIONS_LIST.length
 const memory_size = 50000
@@ -217,7 +217,13 @@ export function doubleTrainOnBatch(discount: number) {
 
 export let reward_arr = []
 
-export async function train(iters: number, epsilon: number, discount: number) {
+export async function train(
+    iters: number,
+    epsilon: number,
+    discount: number,
+    updateFreq: number,
+    render: boolean = false
+) {
     let totalreward = 0
 
     const start = performance.now()
@@ -251,9 +257,13 @@ export async function train(iters: number, epsilon: number, discount: number) {
             console.log(reward_arr)
             console.log(JSON.stringify(reward_arr))
             totalreward = 0
+        }
+
+        if (i % updateFreq === 0) {
             cloneModel(lagged_model, model)
         }
-        await sleep(1)
+
+        if (render) await sleep(1)
     }
     console.log((performance.now() - start) / 1000)
 }
@@ -264,5 +274,5 @@ export async function trainwrapper() {
     console.log('initializing...')
     init()
     console.log('training...')
-    //await train(100001, 0.1, 0.99)
+    //await train(100001, 0.1, 0.99, 2000)
 }
