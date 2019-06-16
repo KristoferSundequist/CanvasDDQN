@@ -1,6 +1,6 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs'
 
-export function getModel(num_actions, input_channels){
+export function getModel(num_actions, input_channels) {
     return tf.sequential({
         layers: [
             tf.layers.zeroPadding2d({
@@ -8,22 +8,24 @@ export function getModel(num_actions, input_channels){
                 padding: 4
             }),
             tf.layers.conv2d({
-                kernelSize: 8,
-                filters: 32,
-                strides: 4,
+                kernelSize: 3,
+                filters: 16,
+                strides: 1,
                 activation: 'relu',
                 kernelInitializer: 'varianceScaling'
             }),
-            tf.layers.conv2d({
-                kernelSize: 4,
-                filters: 64,
-                strides: 2,
-                activation: 'relu',
-                kernelInitializer: 'varianceScaling'
-            }),
+            tf.layers.maxPooling2d({ poolSize: 2 }),
             tf.layers.conv2d({
                 kernelSize: 3,
-                filters: 64,
+                filters: 32,
+                strides: 1,
+                activation: 'relu',
+                kernelInitializer: 'varianceScaling'
+            }),
+            tf.layers.maxPooling2d({ poolSize: 2 }),
+            tf.layers.conv2d({
+                kernelSize: 3,
+                filters: 32,
                 strides: 1,
                 activation: 'relu',
                 kernelInitializer: 'varianceScaling'
@@ -40,10 +42,10 @@ export function getModel(num_actions, input_channels){
                 activation: 'linear'
             })
         ]
-    });
+    })
 }
 
-function getModelOld(num_actions){
+function getModelOld(num_actions) {
     return tf.sequential({
         layers: [
             tf.layers.zeroPadding2d({
@@ -81,13 +83,13 @@ function getModelOld(num_actions){
                 activation: 'linear'
             })
         ]
-    });
+    })
 }
 
-export function cloneModel(m, modelToCopy){
-    for(var i = 0; i < modelToCopy.weights.length; i++){
-        m.weights[i].val.dispose();
-        m.weights[i].val = tf.clone(modelToCopy.weights[i].val);
+export function cloneModel(m, modelToCopy) {
+    for (var i = 0; i < modelToCopy.weights.length; i++) {
+        m.weights[i].val.dispose()
+        m.weights[i].val = tf.clone(modelToCopy.weights[i].val)
     }
-    return m;
+    return m
 }
