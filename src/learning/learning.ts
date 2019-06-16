@@ -12,9 +12,10 @@ import { Rank, Tensor3D, tidy } from '@tensorflow/tfjs'
 
 const num_actions = actions.ACTIONS_LIST.length
 const memory_size = 50000
-export const memory = new ExperienceReplayBuffer(memory_size)
-export const model = getModel(num_actions)
-export let lagged_model = getModel(num_actions)
+const input_channels = 5
+export const memory = new ExperienceReplayBuffer(memory_size, input_channels)
+export const model = getModel(num_actions, input_channels)
+export let lagged_model = getModel(num_actions, input_channels)
 cloneModel(lagged_model, model)
 
 export const optimizer = tf.train.rmsprop(0.0003)
@@ -184,10 +185,11 @@ export function doubleTrainOnBatch(discount: number) {
             .mul(next_action_mask)
             .sum(1)
 
-        const next_state_value = next_q_values
+        const discounted_next_state_value = next_q_values
             .mul(tf.scalar(discount))
             .mul(batch.terminals.logicalNot())
-        const target = next_state_value.add(batch.rewards)
+
+        const target = discounted_next_state_value.add(batch.rewards)
 
         const current_action_mask = tf
             .oneHot(batch.actions, num_actions)
@@ -200,12 +202,6 @@ export function doubleTrainOnBatch(discount: number) {
                 .sum(1)
 
             return tf.losses.huberLoss(target, q_values_of_actions_taken)
-            /*
-            return q_values_of_actions_taken
-                .sub(target)
-                .square()
-                .mean()
-                */
         })
     })
 

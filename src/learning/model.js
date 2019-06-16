@@ -1,10 +1,10 @@
 import * as tf from '@tensorflow/tfjs';
 
-export function getModel(num_actions){
+export function getModel(num_actions, input_channels){
     return tf.sequential({
         layers: [
             tf.layers.zeroPadding2d({
-                inputShape: [28, 28, 3],
+                inputShape: [28, 28, input_channels],
                 padding: 4
             }),
             tf.layers.conv2d({

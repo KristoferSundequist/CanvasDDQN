@@ -12,12 +12,14 @@ export default class ExperienceReplayBuffer {
     pivot: number
     memory: Memory[]
     state_length: number
+    terminals: number[]
 
-    constructor(size: number) {
+    constructor(size: number, state_length: number) {
         this.size = size
         this.pivot = 0
         this.memory = []
-        this.state_length = 3
+        this.state_length = state_length
+        this.terminals = []
     }
 
     push(transition: Memory) {
@@ -70,14 +72,19 @@ export default class ExperienceReplayBuffer {
         return arr
     }
 
-    // TODO: add more forbidden indices (disjoint states)
     getForbiddenIndices(): number[] {
         let forbidden = []
+        forbidden.push(this.pivot - 1) //TODO: nstep
 
-        // push states before pivot since they will be disjoint
-        for (let i = 1; i < this.state_length; i++) {
-            forbidden.push(this.pivot - i)
+        // forbid indices just after terminal states, since the state will then span different episodes (since getMemory stacks
+        // this.state_length number of states backwards)
+        const terminalIndices = this.memory.map((m,i) => m.terminal ? i : null).filter(v => v != null)
+        for(let i = 0; i < terminalIndices.length; i++) {
+            for(let j = 1; j <= this.state_length; j++) {
+                forbidden.push(terminalIndices[i]+j)
+            }
         }
+
         return forbidden
     }
 
