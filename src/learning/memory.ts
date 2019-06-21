@@ -88,6 +88,11 @@ export default class ExperienceReplayBuffer {
         return forbidden
     }
 
+    // TODO: implement
+    getMultiStepNextState(index: number) {
+
+    }
+
     getBatch(batchsize = 32) {
         const indices = this._randomIndices(
             batchsize,

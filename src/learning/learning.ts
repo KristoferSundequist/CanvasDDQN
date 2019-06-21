@@ -83,12 +83,27 @@ window['getAction'] = getAction
 
 export const qlog = []
 
-export function getAction(current_state, log = false) {
+function displayQValues(preds: Float32Array): void {
+    document.querySelector('#text-display').innerHTML = Array.from(preds)
+        .map(v => v.toString().substring(0, 5))
+        .join('----')
+}
+
+export function getAction(
+    current_state: Tensor3D,
+    log: boolean = false,
+    display: boolean = false
+): number {
     return tf.tidy(() => {
         const stacked_state = tensorifyMemory(
             memory.getCurrentState(current_state)
         )
         const pred = model.predict(stacked_state.expandDims())
+
+        if (display) {
+            displayQValues(pred.dataSync())
+        }
+
         if (log) {
             qlog.push(pred.max().dataSync()[0])
         }
@@ -228,7 +243,7 @@ export async function train(
         const action =
             Math.random() < epsilon
                 ? Math.floor(Math.random() * num_actions)
-                : getAction(state, true)
+                : getAction(state, true, render)
         const [reward, terminal] = g.step(action)
         totalreward += reward
 
@@ -259,7 +274,9 @@ export async function train(
             cloneModel(lagged_model, model)
         }
 
-        if (render) await sleep(1)
+        if (render) {
+            await sleep(1)
+        }
     }
     console.log((performance.now() - start) / 1000)
 }
