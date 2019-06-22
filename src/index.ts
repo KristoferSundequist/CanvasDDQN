@@ -1,20 +1,15 @@
+//import { BreakoutKeyboardControls } from './breakout/controls'
+//import { Breakout, BreakoutSettings, actions } from './breakout'
+import './charts'
 
-import { BreakoutKeyboardControls } from './breakout/controls';
-import { Breakout, BreakoutSettings, actions } from './breakout';
-/*
-import FlappyKeyboardControls from './flappybird/FlappyKeyboardControls';
-import { Flappy, FlappySettings} from './flappybird';
-*/
+import FlappyKeyboardControls from './flappybird/FlappyKeyboardControls'
+import { Flappy, FlappySettings } from './flappybird'
 
 //import CirclegameKeyboardControls from './circlegame/CirclegameKeyboardControls';
 //import { Circlegame, CirclegameSettings} from './circlegame';
 
-
-import funcs from './learning';
-window.funcs = funcs;
-
-
-console.log(funcs.reward_arr);
+import funcs from './learning'
+window['funcs'] = funcs
 
 /*
 function startKeyboardControlledGame() {
@@ -37,59 +32,56 @@ function startKeyboardControlledGame() {
 //renders memory (as neural net sees it)
 //funcs.renderMemory(0,200);
 
+/*
 function startKeyboardControlledGame() {
-    
     // To override settings we can pass in an instance of BreakoutSettings
     // e.g. settings: new BreakoutSettings({ ballVelocity: 100 }) and import from
     // './breakout'.
     const game = new Breakout({
         controls: new BreakoutKeyboardControls(),
         settings: new BreakoutSettings({
-      width: 28,
-      height: 28,
+            width: 28,
+            height: 28,
 
-      brickHeight: 1,
-      brickColumnCount: 5,
-      brickRowCount: 3,
-      brickOffsetLeft: 0,
-      brickPadding: 0,
-      brickOffsetTop: 2,
+            brickHeight: 1,
+            brickColumnCount: 5,
+            brickRowCount: 3,
+            brickOffsetLeft: 0,
+            brickPadding: 0,
+            brickOffsetTop: 2,
 
-      paddleHeight: 2,
-      paddleWidth: 9,
-      paddleVelocity: 50,
+            paddleHeight: 2,
+            paddleWidth: 9,
+            paddleVelocity: 50,
 
-      ballRadius: 0.6,
-      ballVelocity: 50,
-    }),
-  });
+            ballRadius: 0.6,
+            ballVelocity: 50
+        })
+    })
 
-  game.start();
+    game.start()
 
-  return game;
+    return game
+}
+*/
+
+function startKeyboardControlledGame() {
+    // To override settings we can pass in an instance of BreakoutSettings
+    // e.g. settings: new BreakoutSettings({ ballVelocity: 100 }) and import from
+    // './breakout'.
+    const game = new Flappy({
+        controls: new FlappyKeyboardControls()
+    })
+    game.start()
+    return game
 }
 
-// function startKeyboardControlledGame() {
-    
-//   // To override settings we can pass in an instance of BreakoutSettings
-//   // e.g. settings: new BreakoutSettings({ ballVelocity: 100 }) and import from
-//   // './breakout'.
-//   const game = new Flappy({
-//     controls: new FlappyKeyboardControls(),
-//   });
-
-//   game.start();
-
-//   return game;
-// }
-
-
 document.querySelector('#js-keyboard-button').addEventListener('click', () => {
-  startKeyboardControlledGame();
-});
+    startKeyboardControlledGame()
+})
 
 document.querySelector('#js-training-button').addEventListener('click', () => {
-  funcs.trainwrapper();
+    funcs.trainwrapper()
 })
 
 //
@@ -128,5 +120,3 @@ document.querySelector('#js-training-button').addEventListener('click', () => {
 //
 //   moves++;
 // }
-
-

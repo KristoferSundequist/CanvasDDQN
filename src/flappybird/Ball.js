@@ -44,6 +44,7 @@ class Ball extends GameObject {
         this._dy += this.gravity;
         
         if(this.y < 0 || this.y > canvas.clientHeight || this.collider.collidesWith('Rect')){
+            this._game.increaseReward(-1)
             this._game.gameOver();
         }
 
