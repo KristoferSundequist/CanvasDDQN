@@ -290,5 +290,5 @@ export async function trainwrapper() {
     console.log('initializing...')
     init()
     console.log('training...')
-    //await train(100001, 0.1, 0.99, 3000, true)
+    await train(100001, 0, 0.99, 3000, true)
 }
