@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs'
-import { Range } from '../utils'
+import { Range, RandInt } from '../utils'
 import { Tensor3D } from '@tensorflow/tfjs'
 
 interface Memory {
@@ -36,6 +36,13 @@ export default class ExperienceReplayBuffer {
 
     tensorifyMemory(mem: tf.Tensor3D[]) {
         return tf.tidy(() => tf.stack(mem, 2).squeeze())
+    }
+
+    padAndCrop(state: tf.Tensor, xCrop: number, yCrop: number, padding: number): tf.Tensor {
+        return tf.tidy(() => {
+            const padded = state.pad([[padding,padding],[padding,padding],[0,0]])
+            return padded.slice([xCrop,yCrop], [state.shape[0],state.shape[1]])
+        })
     }
 
     getMemory(memoryIndex: number, len: number = this.state_length): Tensor3D[] {
@@ -80,18 +87,39 @@ export default class ExperienceReplayBuffer {
         return forbidden
     }
 
+    prepareStates(index: number, nsteps: number, augment: boolean, padding: number=2): [tf.Tensor, tf.Tensor] {
+        return tf.tidy(() => {
+            const state = this.tensorifyMemory(this.getMemory(index))
+            
+            const next_state_index = (index + nsteps) % this.size
+            const next_state = this.tensorifyMemory(this.getMemory(next_state_index))
+
+            if(!augment) {
+                return [state, next_state]
+            }
+
+            const xCrop = RandInt(0, padding*2)
+            const yCrop = RandInt(0, padding*2)
+            const augmented_state = this.padAndCrop(state, xCrop, yCrop, padding)
+            const augmented_next_state = this.padAndCrop(next_state, xCrop, yCrop, padding)
+            
+            return [augmented_state, augmented_next_state]
+        })  
+    }
+
     getBatch(batchsize: number, discount: number, nsteps: number) {
         const indices = this._randomIndices(batchsize, this.memory.length, this.getForbiddenIndices(nsteps))
         return tf.tidy(() => {
-            const states = indices.map(i => this.tensorifyMemory(this.getMemory(i)))
+            let states = []
+            let next_states = []
+            for(let i of indices) {
+                const [state, next_state] = this.prepareStates(i, nsteps, true)
+                states.push(state)
+                next_states.push(next_state)
+            }
 
             const actions = indices.map(i => this.memory[i].action)
 
-            // get state nsteps away from current state
-            const next_states = indices.map(memoryIndex => {
-                const next_state_index = (memoryIndex + nsteps) % this.size
-                return this.tensorifyMemory(this.getMemory(next_state_index))
-            })
 
             //const rewards = indices.map(i => this.memory[i].reward)
             const rewards = indices.map(memoryIndex => {

@@ -5,7 +5,7 @@ import { Breakout, BreakoutSettings, actions } from '../breakout'
 import { canvas, ctx } from '../core/utils/canvas'
 import * as tf from '@tensorflow/tfjs'
 import ExperienceReplayBuffer from './memory'
-import { getModel, cloneModel } from './model'
+import { getModel, cloneModel, softUpdate } from './model'
 import { Tensor3D } from '@tensorflow/tfjs'
 import Logger from './logger'
 
@@ -22,8 +22,7 @@ export const model = getModel(num_actions, input_channels)
 export let lagged_model = getModel(num_actions, input_channels)
 cloneModel(lagged_model, model)
 
-export const optimizer = tf.train.rmsprop(0.0003)
-
+export const optimizer = tf.train.adam(0.0003)
 
 export function startProgrammaticControlledGame() {
     const game = new Breakout({
@@ -52,13 +51,14 @@ export function startProgrammaticControlledGame() {
     return game
 }
 
-/*
-export function startProgrammaticControlledGame() {
-    const game = new Flappy()
-    game.reset()
-    return game
-}
-*/
+
+
+// export function startProgrammaticControlledGame() {
+//     const game = new Flappy()
+//     game.reset()
+//     return game
+// }
+
 /*
 export function startProgrammaticControlledGame() {
     const game = new Circlegame();
@@ -66,6 +66,7 @@ export function startProgrammaticControlledGame() {
     return game;
 }
 */
+
 export function tensorifyMemory(mem): tf.Tensor3D {
     return tf.tidy(() => tf.stack(mem, 2).squeeze())
 }
@@ -105,10 +106,10 @@ function displayQValues(preds: Float32Array): void {
 export function getAction(current_state: Tensor3D, log: boolean = false, display: boolean = false): number {
     return tf.tidy(() => {
         const stacked_state = tensorifyMemory(memory.getCurrentState(current_state))
-        const pred = model.predict(stacked_state.expandDims())
+        const pred = model.predict(stacked_state.expandDims()) as tf.Tensor
 
         if (display) {
-            displayQValues(pred.dataSync())
+            displayQValues(pred.dataSync() as Float32Array)
         }
 
         if (log) {
@@ -133,10 +134,6 @@ export async function renderloop(iters: number, epsilon: number) {
             const action = Math.random() < epsilon ? Math.floor(Math.random() * num_actions) : getAction(state)
 
             const [reward, terminal] = g.step(action)
-            if (terminal) console.log('terminal', terminal)
-            if (reward != 0) {
-                console.log(reward)
-            }
             return [state, action, reward, terminal]
         })
         memory.push({
@@ -176,7 +173,7 @@ export function init(iters = memory_size) {
             terminal: terminal
         })
         if (i % 1000 == 0) {
-            console.log('Init: ', (i / iters) * 100, '%')
+            console.log('Initializing: ', (i / iters) * 100, '%')
         }
     }
     console.log('done')
@@ -215,12 +212,12 @@ export async function renderMemory(start, stop) {
 ///////////////////////////////////////////////////////////////////////////////
 
 export function doubleTrainOnBatch(batchSize: number, discount: number, nsteps: number) {
-    const batch = memory.getBatch(batchSize, discount, nsteps)
     tf.tidy(() => {
-        const next_actions = model.predict(batch.next_states).argMax(1)
+        const batch = memory.getBatch(batchSize, discount, nsteps)
+        const next_actions = (model.predict(batch.next_states) as tf.Tensor).argMax(1)
         const next_action_mask = tf.oneHot(next_actions, num_actions).cast('float32')
-        const next_q_values = lagged_model
-            .predict(batch.next_states)
+        const next_q_values = (lagged_model
+            .predict(batch.next_states) as tf.Tensor)
             .mul(next_action_mask)
             .sum(1)
 
@@ -232,17 +229,18 @@ export function doubleTrainOnBatch(batchSize: number, discount: number, nsteps: 
         const current_action_mask = tf.oneHot(batch.actions, num_actions).cast('float32')
 
         optimizer.minimize(() => {
-            const current_q_values = model.predict(batch.states)
+            const current_q_values = model.predict(batch.states) as tf.Tensor
             const q_values_of_actions_taken = current_q_values.mul(current_action_mask).sum(1)
 
             return tf.losses.huberLoss(target, q_values_of_actions_taken)
         })
     })
 
-    batch.states.dispose()
-    batch.actions.dispose()
-    batch.next_states.dispose()
-    batch.rewards.dispose()
+    // batch.states.dispose()
+    // batch.actions.dispose()
+    // batch.next_states.dispose()
+    // batch.rewards.dispose()
+    // batch.terminals.dispose()
 }
 
 export async function train(
@@ -275,9 +273,10 @@ export async function train(
             logger.plot()
         }
 
-        if (i % updateFreq === 0) {
+        if (i % updateFreq == 0) {
             cloneModel(lagged_model, model)
         }
+
         if (render) {
             await sleep(1)
         }
@@ -291,5 +290,5 @@ export async function trainwrapper() {
     console.log('initializing...')
     init()
     console.log('training...')
-    //await train(100001, 0.1, 0.99, 2000, true)
+    //await train(100001, 0.1, 0.99, true)
 }
