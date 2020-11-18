@@ -10,7 +10,7 @@ import { NO_ACTION, UP, DOWN, LEFT, RIGHT } from './actions';
  * @property {number} angle
  * @property {Game} _game
  */
-class Ball extends GameObject {
+class SimpleBall extends GameObject {
     /**
      *
      * @param {number} x
@@ -25,11 +25,8 @@ class Ball extends GameObject {
 
         this.controls = controls;
         this.radius = radius;
-        this._dx = 0;
-        this._dy = 0;
         this._game = game;
-        this.maxspeed = 2;
-        this.change = 0.4;
+        this.speed = 1;
 
         this.collider = new CircleCollider({ x, y, radius, name: 'Ball', object: this });
     }
@@ -39,55 +36,32 @@ class Ball extends GameObject {
         const move = this.controls.getAction();
         
         if (move === UP) {
-            this._dy -= this.change;
+            this.y -= this.speed;
         }
         if (move === DOWN) {
-            this._dy += this.change;
+            this.y += this.speed;
         }
         if (move === LEFT) {
-            this._dx -= this.change;
+            this.x -= this.speed;
         }
         if (move === RIGHT) {
-            this._dx += this.change;
-        }
-        
-        this.y += this._dy;
-        this.x += this._dx;
-
-        
-        if(this._dy < -this.maxspeed){
-            this._dy = -this.maxspeed;
-        }
-        if(this._dy > this.maxspeed){
-            this._dy = this.maxspeed;
-        }
-        if(this._dx < -this.maxspeed){
-            this._dx = -this.maxspeed;
-        }
-        if(this._dx > this.maxspeed){
-            this._dx = this.maxspeed;
+            this.x += this.speed;
         }
         
         
         if(this.y < 0){
             this.y = 0;
-            this._dy *= -1;
         }
         if(this.y > canvas.clientHeight){
             this.y = canvas.clientHeight;
-            this._dy *= -1;
         }
         if(this.x < 0){
             this.x = 0;
-            this._dx *= -1;
         }
         if(this.x > canvas.clientWidth){
             this.x = canvas.clientWidth;
-            this._dx *= -1;
         }
 
-        this._dx *= 0.95;
-        this._dy *= 0.95;
         this.collider.update({ x: this.x, y: this.y });
     }
 
@@ -107,4 +81,4 @@ class Ball extends GameObject {
 
 }
 
-export default Ball;
+export default SimpleBall;

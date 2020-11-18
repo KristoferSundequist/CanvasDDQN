@@ -1,6 +1,6 @@
 import { Game } from '../core/index';
 import { canvas } from '../core/utils/canvas';
-import Ball from './Ball';
+import SimpleBall from './SimpleBall';
 import Enemy from './Enemy';
 import Reward from './Reward';
 import CirclegameSettings from './CirclegameSettings';
@@ -33,12 +33,12 @@ class Circlegame extends Game {
         this._collision.detect(this.gameObjects);
 
         if (this.Ball.collider.collidesWith('Enemy')){
-            this.increaseReward(-5);
+            this.increaseReward(-1);
             this.Enemy.reset();
         }
 
         if (this.Ball.collider.collidesWith('Reward')){
-            this.increaseReward(1);
+            this.increaseReward(0.2);
             this.Reward.reset();
         }
         
@@ -51,7 +51,7 @@ class Circlegame extends Game {
     reset() {
         super.reset();
 
-        this.Ball = new Ball({
+        this.Ball = new SimpleBall({
             x: Math.random()*canvas.clientWidth,
             y: Math.random()*canvas.clientHeight,
             controls: this._controls,
@@ -64,7 +64,7 @@ class Circlegame extends Game {
             y: Math.random()*canvas.clientHeight,
             controls: this._controls,
             game: this,
-            radius: 4,
+            radius: 3,
             target: this.Ball
         });
 
