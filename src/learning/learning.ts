@@ -235,12 +235,6 @@ export function doubleTrainOnBatch(batchSize: number, discount: number, nsteps: 
             return tf.losses.huberLoss(target, q_values_of_actions_taken)
         })
     })
-
-    // batch.states.dispose()
-    // batch.actions.dispose()
-    // batch.next_states.dispose()
-    // batch.rewards.dispose()
-    // batch.terminals.dispose()
 }
 
 export async function train(
