@@ -1,5 +1,5 @@
-import { Breakout, BreakoutSettings, actions } from '../breakout'
-//import { Flappy, FlappySettings, actions } from '../flappybird'
+//import { Breakout, BreakoutSettings, actions } from '../breakout'
+import { Flappy, FlappySettings, actions } from '../flappybird'
 //import { Circlegame, CirclegameSettings, actions} from '../circlegame';
 
 import { canvas, ctx } from '../core/utils/canvas'
@@ -24,40 +24,40 @@ cloneModel(lagged_model, model)
 
 export const optimizer = tf.train.adam(0.0003)
 
-export function startProgrammaticControlledGame() {
-    const game = new Breakout({
-        settings: new BreakoutSettings({
-            width: 28,
-            height: 28,
-
-            brickHeight: 1,
-            brickColumnCount: 5,
-            brickRowCount: 3,
-            brickOffsetLeft: 0,
-            brickPadding: 0,
-            brickOffsetTop: 2,
-
-            paddleHeight: 2,
-            paddleWidth: 9,
-            paddleVelocity: 50,
-
-            ballRadius: 0.6,
-            ballVelocity: 60
-        })
-    })
-
-    game.reset()
-
-    return game
-}
-
-
-
 // export function startProgrammaticControlledGame() {
-//     const game = new Flappy()
+//     const game = new Breakout({
+//         settings: new BreakoutSettings({
+//             width: 28,
+//             height: 28,
+
+//             brickHeight: 1,
+//             brickColumnCount: 5,
+//             brickRowCount: 3,
+//             brickOffsetLeft: 0,
+//             brickPadding: 0,
+//             brickOffsetTop: 2,
+
+//             paddleHeight: 2,
+//             paddleWidth: 9,
+//             paddleVelocity: 50,
+
+//             ballRadius: 0.6,
+//             ballVelocity: 60
+//         })
+//     })
+
 //     game.reset()
+
 //     return game
 // }
+
+
+
+export function startProgrammaticControlledGame() {
+    const game = new Flappy()
+    game.reset()
+    return game
+}
 
 /*
 export function startProgrammaticControlledGame() {
@@ -290,5 +290,5 @@ export async function trainwrapper() {
     console.log('initializing...')
     init()
     console.log('training...')
-    //await train(100001, 0.1, 0.99, true)
+    //await train(100001, 0.1, 0.99, 3000, true)
 }

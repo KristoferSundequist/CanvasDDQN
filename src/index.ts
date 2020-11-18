@@ -2,24 +2,24 @@
 //import { Breakout, BreakoutSettings, actions } from './breakout'
 import './charts'
 
-//import FlappyKeyboardControls from './flappybird/FlappyKeyboardControls'
-//import { Flappy, FlappySettings } from './flappybird'
+import FlappyKeyboardControls from './flappybird/FlappyKeyboardControls'
+import { Flappy, FlappySettings } from './flappybird'
 
-import CirclegameKeyboardControls from './circlegame/CirclegameKeyboardControls';
-import { Circlegame, CirclegameSettings} from './circlegame';
+//import CirclegameKeyboardControls from './circlegame/CirclegameKeyboardControls';
+//import { Circlegame, CirclegameSettings} from './circlegame';
 
 import funcs from './learning'
 window['funcs'] = funcs
 
-function startKeyboardControlledGame() {
-    const game = new Circlegame({
-        controls: new CirclegameKeyboardControls(),
-    });
+// function startKeyboardControlledGame() {
+//     const game = new Circlegame({
+//         controls: new CirclegameKeyboardControls(),
+//     });
 
-    game.start();
+//     game.start();
 
-    return game;
-}
+//     return game;
+// }
 //fills replay buffer with random actions
 //funcs.init();
 
@@ -59,7 +59,6 @@ function startKeyboardControlledGame() {
 }
 */
 
-/*
 function startKeyboardControlledGame() {
     // To override settings we can pass in an instance of BreakoutSettings
     // e.g. settings: new BreakoutSettings({ ballVelocity: 100 }) and import from
@@ -70,7 +69,6 @@ function startKeyboardControlledGame() {
     game.start()
     return game
 }
-*/
 
 document.querySelector('#js-keyboard-button').addEventListener('click', () => {
     startKeyboardControlledGame()
