@@ -7,7 +7,7 @@ describe('memory init', () => {
     })
 
     it('size is size', () => {
-        const memory = new ExperienceReplayBuffer(1000,3)
+        const memory = new ExperienceReplayBuffer(1000,3, 1, 1)
         expect(memory.size).toEqual(1000)
     })
     
@@ -15,20 +15,20 @@ describe('memory init', () => {
 
 describe('preparStates', () => {
     it('padAndCrop - Returns same size', () => {
-        const memory = new ExperienceReplayBuffer(1000,3)
+        const memory = new ExperienceReplayBuffer(1000,3, 1 ,1)
         const inputState = tf.zeros([28,28,4])
 
-        const cropped = memory.padAndCrop(inputState, 0, 1, 2)
+        const cropped = memory._padAndCrop(inputState, 0, 1, 2)
 
         expect(cropped.shape).toEqual([28,28,4])
         
     })
 
     it('padAndCrop - moves pixel correctly when zero crop', () => {
-        const memory = new ExperienceReplayBuffer(1000,3)
+        const memory = new ExperienceReplayBuffer(1000,3, 1, 1)
         const inputState = tf.randomGamma([3,3,2], 0.5)
 
-        const cropped = memory.padAndCrop(inputState, 0, 0, 2)
+        const cropped = memory._padAndCrop(inputState, 0, 0, 2)
         
         const inputData = inputState.dataSync()
         const croppedData = cropped.dataSync()
@@ -40,10 +40,10 @@ describe('preparStates', () => {
     })
 
     it('padAndCrop - moves pixel correctly when little x crop crop', () => {
-        const memory = new ExperienceReplayBuffer(1000,3)
+        const memory = new ExperienceReplayBuffer(1000,3, 1, 1)
         const inputState = tf.randomGamma([3,3,2], 0.5)
 
-        const cropped = memory.padAndCrop(inputState, 1, 0, 2)
+        const cropped = memory._padAndCrop(inputState, 1, 0, 2)
         
         const inputData = inputState.dataSync()
         const croppedData = cropped.dataSync()
@@ -56,10 +56,10 @@ describe('preparStates', () => {
     })
 
     it('padAndCrop - moves pixel correctly when little y crop crop', () => {
-        const memory = new ExperienceReplayBuffer(1000,3)
+        const memory = new ExperienceReplayBuffer(1000,3, 1, 1)
         const inputState = tf.randomGamma([3,3,2], 0.5)
 
-        const cropped = memory.padAndCrop(inputState, 0, 1, 2)
+        const cropped = memory._padAndCrop(inputState, 0, 1, 2)
         
         const inputData = inputState.dataSync()
         const croppedData = cropped.dataSync()

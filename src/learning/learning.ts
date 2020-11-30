@@ -15,9 +15,9 @@ const logger = new Logger(logFrequency)
 //tf.setBackend('webgl')
 
 const num_actions = actions.ACTIONS_LIST.length
-const memory_size = 50000
+const memory_size = 200000
 const input_channels = 4
-export const memory = new ExperienceReplayBuffer(memory_size, input_channels)
+export const memory = new ExperienceReplayBuffer(memory_size, input_channels, 28, 28)
 export const model = getModel(num_actions, input_channels)
 export let lagged_model = getModel(num_actions, input_channels)
 cloneModel(lagged_model, model)
@@ -186,11 +186,13 @@ export function init(iters = memory_size) {
 /////////////////////////////////////////////////////////////////////////////////
 
 export function renderCurrentState() {
-    const state = getState()
-    const stack = tensorifyMemory(memory.getCurrentState(state, true))
-        .mul(tf.scalar(255))
-        .cast('int32') as Tensor3D
-    tf.browser.toPixels(stack, canvas)
+    tf.tidy(() => {
+        const state = getState()
+        const stack = tensorifyMemory(memory.getCurrentState(state, true))
+            .mul(tf.scalar(255))
+            .cast('int32') as Tensor3D
+        tf.browser.toPixels(stack, canvas)
+    })
 }
 
 export async function renderMemory(start, stop) {
@@ -282,7 +284,7 @@ export async function trainwrapper() {
     window['g'] = startProgrammaticControlledGame()
     console.log(num_actions)
     console.log('initializing...')
-    init()
+    init(10000)
     console.log('training...')
     await train(100001, 0, 0.99, 3000, true)
 }

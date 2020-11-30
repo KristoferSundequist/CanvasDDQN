@@ -9,28 +9,49 @@ interface Memory {
     terminal: boolean
 }
 
+interface InternalMemory {
+    state: Float32Array
+    action: number
+    reward: number
+    terminal: boolean
+}
+
 export default class ExperienceReplayBuffer {
     size: number
     pivot: number
-    memory: Memory[]
+    memory: InternalMemory[]
     state_length: number
     terminals: number[]
+    _width: number
+    _height: number
 
-    constructor(size: number, state_length: number) {
+    constructor(size: number, state_length: number, width: number, height: number) {
         this.size = size
         this.pivot = 0
         this.memory = []
         this.state_length = state_length
         this.terminals = []
+
+        this._width = width
+        this._height = height
     }
 
+    // takes ownership over the memory
     push(transition: Memory) {
         if (this.memory.length < this.size) {
             this.memory.push(null)
-        } else {
-            this.memory[this.pivot].state.dispose()
         }
-        this.memory[this.pivot] = transition
+
+        const internalMemory = {
+            state: transition.state.dataSync() as Float32Array,
+            action: transition.action,
+            reward: transition.reward,
+            terminal: transition.terminal
+        }
+
+        transition.state.dispose()
+
+        this.memory[this.pivot] = internalMemory
         this.pivot = (this.pivot + 1) % this.size
     }
 
@@ -38,21 +59,30 @@ export default class ExperienceReplayBuffer {
         return tf.tidy(() => tf.stack(mem, 2).squeeze())
     }
 
-    padAndCrop(state: tf.Tensor, xCrop: number, yCrop: number, padding: number): tf.Tensor {
+    _padAndCrop(state: tf.Tensor, xCrop: number, yCrop: number, padding: number): tf.Tensor {
         return tf.tidy(() => {
-            const padded = state.pad([[padding,padding],[padding,padding],[0,0]])
-            return padded.slice([xCrop,yCrop], [state.shape[0],state.shape[1]])
+            const padded = state.pad([[padding, padding], [padding, padding], [0, 0]])
+            return padded.slice([xCrop, yCrop], [state.shape[0], state.shape[1]])
         })
     }
 
     getMemory(memoryIndex: number, len: number = this.state_length): Tensor3D[] {
-        return Range(len).map((_, i) => {
-            let index = memoryIndex - i
-            if (index < 0) {
-                index = this.size + index
-            }
-            return this.memory[index].state
-        })
+        try {
+            return Range(len).map((_, i) => {
+                let index = memoryIndex - i
+                if (index < 0) {
+                    index = this.size + index
+                }
+                return tf.tensor(this.memory[index].state, [this._width, this._height, 1])
+            })
+        } catch (e) {
+            console.log("----------- Exception in getMemory --------------")
+            console.log(e)
+            console.log(memoryIndex)
+            console.log(len)
+            console.log(this.memory.length)
+            throw e;
+        }
     }
 
     getCurrentState(state: tf.Tensor3D, forRender: boolean = false): tf.Tensor3D[] {
@@ -72,8 +102,13 @@ export default class ExperienceReplayBuffer {
         return arr
     }
 
-    getForbiddenIndices(nsteps: number): number[] {
+    _getForbiddenIndices(nsteps: number): number[] {
         let forbidden = Range(nsteps).map(v => this.pivot - v - 1)
+
+        // forbid memories at the start of the buffer since they are not nstep long
+        for (let i = 0; i < nsteps; i++) {
+            forbidden.push(i)
+        }
 
         // forbid indices just after terminal states, since the state will then span different episodes (since getMemory stacks
         // this.state_length number of states backwards)
@@ -87,33 +122,33 @@ export default class ExperienceReplayBuffer {
         return forbidden
     }
 
-    prepareStates(index: number, nsteps: number, augment: boolean, padding: number=2): [tf.Tensor, tf.Tensor] {
+    _prepareStates(index: number, nsteps: number, augment: boolean, padding: number = 2): [tf.Tensor, tf.Tensor] {
         return tf.tidy(() => {
             const state = this.tensorifyMemory(this.getMemory(index))
-            
+
             const next_state_index = (index + nsteps) % this.size
             const next_state = this.tensorifyMemory(this.getMemory(next_state_index))
 
-            if(!augment) {
+            if (!augment) {
                 return [state, next_state]
             }
 
-            const xCrop = RandInt(0, padding*2)
-            const yCrop = RandInt(0, padding*2)
-            const augmented_state = this.padAndCrop(state, xCrop, yCrop, padding)
-            const augmented_next_state = this.padAndCrop(next_state, xCrop, yCrop, padding)
-            
+            const xCrop = RandInt(0, padding * 2)
+            const yCrop = RandInt(0, padding * 2)
+            const augmented_state = this._padAndCrop(state, xCrop, yCrop, padding)
+            const augmented_next_state = this._padAndCrop(next_state, xCrop, yCrop, padding)
+
             return [augmented_state, augmented_next_state]
-        })  
+        })
     }
 
     getBatch(batchsize: number, discount: number, nsteps: number) {
-        const indices = this._randomIndices(batchsize, this.memory.length, this.getForbiddenIndices(nsteps))
+        const indices = this._randomIndices(batchsize, this.memory.length, this._getForbiddenIndices(nsteps))
         return tf.tidy(() => {
             let states = []
             let next_states = []
-            for(let i of indices) {
-                const [state, next_state] = this.prepareStates(i, nsteps, true)
+            for (let i of indices) {
+                const [state, next_state] = this._prepareStates(i, nsteps, true)
                 states.push(state)
                 next_states.push(next_state)
             }
@@ -155,13 +190,5 @@ export default class ExperienceReplayBuffer {
                 terminals: tf.tensor(terminals)
             }
         })
-    }
-
-    get(ith: number) {
-        return this.memory[ith]
-    }
-
-    length(): number {
-        return this.memory.length
     }
 }
