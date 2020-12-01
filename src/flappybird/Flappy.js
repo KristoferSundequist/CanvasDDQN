@@ -11,7 +11,7 @@ import FlappySettings from './FlappySettings'
  * @property {Controls} _controls}
  * @property {GameLoop} _gameLoop
  * @property {Collision} _collision
- * @property {BreakoutSettings} _settings
+ * @property {FlappySettings} _settings
  * @property {number} _reward
  */
 class Flappy extends Game {
@@ -22,7 +22,9 @@ class Flappy extends Game {
     }
 
     getOpening() {
-        return canvas.clientHeight / 2 + (Math.random() * 6 - 3) - this.openingSize / 2
+        const three_quarters_of_height = 3 * canvas.clientHeight / 4
+        const half_of_that = three_quarters_of_height / 2
+        return canvas.clientHeight / 2 + (Math.random() * three_quarters_of_height - half_of_that) - this.openingSize / 2
     }
 
     resetOpening() {

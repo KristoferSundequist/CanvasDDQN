@@ -11,8 +11,8 @@ import { Settings } from '../core';
 class CirclegameSettings extends Settings {
   getDefaultSettings() {
     return {
-        width: 28,
-        height: 28,
+        width: 48,
+        height: 48,
         ballRadius: 2,
     };
   }

@@ -5,7 +5,7 @@ export function getWorkingModel(num_actions: number, input_channels: number) {
     return tf.sequential({
         layers: [
             tf.layers.zeroPadding2d({
-                inputShape: [28, 28, input_channels],
+                inputShape: [48, 48, input_channels],
                 padding: 2
             }),
             tf.layers.conv2d({
@@ -47,11 +47,11 @@ export function getWorkingModel(num_actions: number, input_channels: number) {
 }
 
 export function getModel(num_actions: number, input_channels: number) {
-    const input = tf.input({ shape: [28, 28, input_channels] })
+    const input = tf.input({ shape: [48, 48, input_channels] })
     const featureExtractor = tf.sequential({
         layers: [
             tf.layers.zeroPadding2d({
-                inputShape: [28, 28, input_channels],
+                inputShape: [48, 48, input_channels],
                 padding: 3
             }),
             tf.layers.conv2d({
@@ -136,7 +136,7 @@ export function getModelSemiOld(num_actions, input_channels) {
     return tf.sequential({
         layers: [
             tf.layers.zeroPadding2d({
-                inputShape: [28, 28, input_channels],
+                inputShape: [48, 48, input_channels],
                 padding: 2
             }),
             tf.layers.conv2d({
@@ -181,7 +181,7 @@ function getModelOld(num_actions) {
     return tf.sequential({
         layers: [
             tf.layers.zeroPadding2d({
-                inputShape: [28, 28, 3],
+                inputShape: [48, 48, 3],
                 padding: 2
             }),
             tf.layers.conv2d({

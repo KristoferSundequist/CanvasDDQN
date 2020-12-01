@@ -16,11 +16,11 @@ describe('memory init', () => {
 describe('preparStates', () => {
     it('padAndCrop - Returns same size', () => {
         const memory = new ExperienceReplayBuffer(1000,3, 1 ,1)
-        const inputState = tf.zeros([28,28,4])
+        const inputState = tf.zeros([48,48,4])
 
         const cropped = memory._padAndCrop(inputState, 0, 1, 2)
 
-        expect(cropped.shape).toEqual([28,28,4])
+        expect(cropped.shape).toEqual([48,48,4])
         
     })
 

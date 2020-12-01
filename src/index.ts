@@ -34,8 +34,8 @@ function startKeyboardControlledGame() {
     const game = new Breakout({
         controls: new BreakoutKeyboardControls(),
         settings: new BreakoutSettings({
-            width: 28,
-            height: 28,
+            width: 48,
+            height: 48,
 
             brickHeight: 1,
             brickColumnCount: 5,

@@ -17,7 +17,7 @@ const logger = new Logger(logFrequency)
 const num_actions = actions.ACTIONS_LIST.length
 const memory_size = 200000
 const input_channels = 4
-export const memory = new ExperienceReplayBuffer(memory_size, input_channels, 28, 28)
+export const memory = new ExperienceReplayBuffer(memory_size, input_channels, 48, 48)
 export const model = getModel(num_actions, input_channels)
 export let lagged_model = getModel(num_actions, input_channels)
 cloneModel(lagged_model, model)
@@ -27,8 +27,8 @@ export const optimizer = tf.train.adam(0.0003)
 // export function startProgrammaticControlledGame() {
 //     const game = new Breakout({
 //         settings: new BreakoutSettings({
-//             width: 28,
-//             height: 28,
+//             width: 48,
+//             height: 48,
 
 //             brickHeight: 1,
 //             brickColumnCount: 5,
