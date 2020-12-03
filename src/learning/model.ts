@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs'
-import { Tensor3D, SymbolicTensor } from '@tensorflow/tfjs'
+import { Tensor3D, SymbolicTensor, Tensor } from '@tensorflow/tfjs'
 
 export function getWorkingModel(num_actions: number, input_channels: number) {
     return tf.sequential({
@@ -46,6 +46,26 @@ export function getWorkingModel(num_actions: number, input_channels: number) {
     })
 }
 
+
+class CustomPooler2d extends tf.layers.Layer {
+    constructor() {
+        super({});
+    }
+
+    computeOutputShape(inputShape) { return [inputShape[0], inputShape[1], inputShape[2]]; }
+
+    call(input, kwargs) {
+        if (Array.isArray(input)) {
+            return input[0].mean([3]);
+        } else {
+            throw new Error("Expected array but got something that wasnt")
+        }
+    }
+
+    getClassName() { return 'CustomPooler2dHackz'; }
+
+}
+
 export function getModel(num_actions: number, input_channels: number) {
     const input = tf.input({ shape: [48, 48, input_channels] })
     const featureExtractor = tf.sequential({
@@ -56,43 +76,37 @@ export function getModel(num_actions: number, input_channels: number) {
             }),
             tf.layers.conv2d({
                 kernelSize: 3,
-                filters: 16,
+                filters: 32,
                 strides: 1,
-                activation: 'relu',
-                kernelInitializer: 'varianceScaling'
+                activation: 'relu'
             }),
             tf.layers.averagePooling2d({ poolSize: 2 }),
             tf.layers.conv2d({
                 kernelSize: 3,
                 filters: 32,
                 strides: 1,
-                activation: 'relu',
-                kernelInitializer: 'varianceScaling'
+                activation: 'relu'
             }),
             tf.layers.averagePooling2d({ poolSize: 2 }),
             tf.layers.conv2d({
                 kernelSize: 3,
                 filters: 32,
                 strides: 1,
-                activation: 'relu',
-                kernelInitializer: 'varianceScaling'
+                activation: 'relu'
             }),
             tf.layers.flatten()
         ]
     })
 
-
     const features = featureExtractor.apply(input)
 
     const valueHidden = tf.layers.dense({
         units: 512,
-        kernelInitializer: 'varianceScaling',
         activation: 'relu'
     })
 
     const valueHead = tf.layers.dense({
         units: 1,
-        kernelInitializer: 'varianceScaling',
         activation: 'linear'
     })
 
@@ -100,13 +114,11 @@ export function getModel(num_actions: number, input_channels: number) {
 
     const advantagesHidden = tf.layers.dense({
         units: 512,
-        kernelInitializer: 'varianceScaling',
         activation: 'relu'
     })
 
     const advantagesHead = tf.layers.dense({
         units: num_actions,
-        kernelInitializer: 'varianceScaling',
         activation: 'linear'
     })
 
