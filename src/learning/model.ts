@@ -32,21 +32,24 @@ export function getModel(num_actions: number, input_channels: number) {
                 kernelSize: 3,
                 filters: 32,
                 strides: 1,
-                activation: 'relu'
+                activation: 'relu',
+                kernelInitializer: 'varianceScaling'
             }),
             tf.layers.averagePooling2d({ poolSize: 2 }),
             tf.layers.conv2d({
                 kernelSize: 3,
                 filters: 32,
                 strides: 1,
-                activation: 'relu'
+                activation: 'relu',
+                kernelInitializer: 'varianceScaling'
             }),
             tf.layers.averagePooling2d({ poolSize: 2 }),
             tf.layers.conv2d({
                 kernelSize: 3,
                 filters: 32,
                 strides: 1,
-                activation: 'relu'
+                activation: 'relu',
+                kernelInitializer: 'varianceScaling'
             }),
             tf.layers.flatten()
         ]
@@ -56,24 +59,28 @@ export function getModel(num_actions: number, input_channels: number) {
 
     const valueHidden = tf.layers.dense({
         units: 512,
-        activation: 'relu'
+        activation: 'relu',
+        kernelInitializer: 'varianceScaling'
     })
 
     const valueHead = tf.layers.dense({
         units: 1,
-        activation: 'linear'
+        activation: 'linear',
+        kernelInitializer: 'varianceScaling'
     })
 
     const value = valueHead.apply(valueHidden.apply(features)) as SymbolicTensor
 
     const advantagesHidden = tf.layers.dense({
         units: 512,
-        activation: 'relu'
+        activation: 'relu',
+        kernelInitializer: 'varianceScaling'
     })
 
     const advantagesHead = tf.layers.dense({
         units: num_actions,
-        activation: 'linear'
+        activation: 'linear',
+        kernelInitializer: 'varianceScaling'
     })
 
     const advantages = advantagesHead.apply(advantagesHidden.apply(features)) as SymbolicTensor
