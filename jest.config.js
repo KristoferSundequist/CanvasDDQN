@@ -5,4 +5,5 @@ module.exports = {
   "transform": {
     "^.+\\.ts?$": "ts-jest"
   },
+  "testMatch": ["<rootDir>/**/memory.ts", "<rootDir>/**/utils.ts"]
 }

@@ -2,8 +2,8 @@
 //import { Breakout, BreakoutSettings, actions } from './breakout'
 import './charts'
 
-import FlappyKeyboardControls from './flappybird/FlappyKeyboardControls'
-import { Flappy, FlappySettings } from './flappybird'
+// import FlappyKeyboardControls from './flappybird/FlappyKeyboardControls'
+// import { Flappy, FlappySettings } from './flappybird'
 
 //import CirclegameKeyboardControls from './circlegame/CirclegameKeyboardControls';
 //import { Circlegame, CirclegameSettings} from './circlegame';
@@ -59,20 +59,20 @@ function startKeyboardControlledGame() {
 }
 */
 
-function startKeyboardControlledGame() {
-    // To override settings we can pass in an instance of BreakoutSettings
-    // e.g. settings: new BreakoutSettings({ ballVelocity: 100 }) and import from
-    // './breakout'.
-    const game = new Flappy({
-        controls: new FlappyKeyboardControls()
-    })
-    game.start()
-    return game
-}
+// function startKeyboardControlledGame() {
+//     // To override settings we can pass in an instance of BreakoutSettings
+//     // e.g. settings: new BreakoutSettings({ ballVelocity: 100 }) and import from
+//     // './breakout'.
+//     const game = new Flappy({
+//         controls: new FlappyKeyboardControls()
+//     })
+//     game.start()
+//     return game
+// }
 
-document.querySelector('#js-keyboard-button').addEventListener('click', () => {
-    startKeyboardControlledGame()
-})
+// document.querySelector('#js-keyboard-button').addEventListener('click', () => {
+//     startKeyboardControlledGame()
+// })
 
 document.querySelector('#js-training-button').addEventListener('click', () => {
     funcs.trainwrapper()
