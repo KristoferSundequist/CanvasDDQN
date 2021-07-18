@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@tensorflow/tfjs": "^2.7.0",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.4",
     "webpack": "^5.5"
   }
 }
