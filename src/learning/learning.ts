@@ -1,6 +1,6 @@
-import { Breakout, BreakoutSettings, actions } from '../breakout'
+//import { Breakout, BreakoutSettings, actions } from '../breakout'
 //import { Flappy, FlappySettings, actions } from '../flappybird'
-//import { Circlegame, CirclegameSettings, actions} from '../circlegame';
+import { Circlegame, CirclegameSettings, actions} from '../circlegame';
 
 import { canvas, ctx } from '../core/utils/canvas'
 import * as tf from '@tensorflow/tfjs'
@@ -24,32 +24,32 @@ cloneModel(lagged_model, model)
 
 export const optimizer = tf.train.adam(0.0003)
 
-export function startProgrammaticControlledGame() {
-    const game = new Breakout({
-        settings: new BreakoutSettings({
-            width: 48,
-            height: 48,
+// export function startProgrammaticControlledGame() {
+//     const game = new Breakout({
+//         settings: new BreakoutSettings({
+//             width: 48,
+//             height: 48,
 
-            brickHeight: 1,
-            brickColumnCount: 5,
-            brickRowCount: 3,
-            brickOffsetLeft: 0,
-            brickPadding: 0,
-            brickOffsetTop: 2,
+//             brickHeight: 1,
+//             brickColumnCount: 5,
+//             brickRowCount: 3,
+//             brickOffsetLeft: 0,
+//             brickPadding: 0,
+//             brickOffsetTop: 2,
 
-            paddleHeight: 2,
-            paddleWidth: 9,
-            paddleVelocity: 50,
+//             paddleHeight: 2,
+//             paddleWidth: 9,
+//             paddleVelocity: 50,
 
-            ballRadius: 0.6,
-            ballVelocity: 60
-        })
-    })
+//             ballRadius: 0.6,
+//             ballVelocity: 60
+//         })
+//     })
 
-    game.reset()
+//     game.reset()
 
-    return game
-}
+//     return game
+// }
 
 
 
@@ -59,13 +59,12 @@ export function startProgrammaticControlledGame() {
 //     return game
 // }
 
-/*
+
 export function startProgrammaticControlledGame() {
     const game = new Circlegame();
     game.reset();
     return game;
 }
-*/
 
 export function tensorifyMemory(mem): tf.Tensor3D {
     return tf.tidy(() => tf.stack(mem, 2).squeeze())
