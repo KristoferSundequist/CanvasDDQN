@@ -1,6 +1,6 @@
 //import { Breakout, BreakoutSettings, actions } from '../breakout'
 //import { Flappy, FlappySettings, actions } from '../flappybird'
-import { Circlegame, CirclegameSettings, actions} from '../circlegame';
+import { Circlegame, CirclegameSettings, actions } from '../circlegame';
 
 import { canvas, ctx } from '../core/utils/canvas'
 import * as tf from '@tensorflow/tfjs'
@@ -238,6 +238,67 @@ export function doubleTrainOnBatch(batchSize: number, discount: number, nsteps: 
     })
 }
 
+let up = false
+let down = false
+let left = false
+let right = false
+
+window.addEventListener("keydown", e => {
+
+    switch (e.key) {
+        case "ArrowLeft":
+            left = true
+            e.preventDefault()
+            break;
+        case "ArrowRight":
+            right = true
+            e.preventDefault()
+            break;
+        case "ArrowUp":
+            up = true
+            e.preventDefault()
+            break;
+        case "ArrowDown":
+            down = true
+            e.preventDefault()
+            break;
+        default:
+            break
+    }
+})
+
+window.addEventListener("keyup", e => {
+    switch (e.key) {
+        case "ArrowLeft":
+            left = false
+            break;
+        case "ArrowRight":
+            right = false
+            break;
+        case "ArrowUp":
+            up = false
+            break;
+        case "ArrowDown":
+            down = false
+            break;
+        default:
+            break
+    }
+})
+
+const getHumanAction = () => {
+    if (up) {
+        return 1
+    } else if (down) {
+        return 2
+    } else if (left) {
+        return 3
+    } else if (right) {
+        return 4
+    }
+    return null
+}
+
 export async function train(
     iters: number,
     epsilon: number,
@@ -248,8 +309,13 @@ export async function train(
     const start = performance.now()
     for (var i = 0; i < iters; i++) {
         const state = getState()
-        const action =
-            Math.random() < epsilon ? Math.floor(Math.random() * num_actions) : getAction(state, true, render)
+        const humanAction = getHumanAction()
+        const action = humanAction ?? (
+            Math.random() < epsilon
+                ? Math.floor(Math.random() * num_actions)
+                : getAction(state, true, render)
+        )
+
         const [reward, terminal] = g.step(action)
 
         memory.push({
