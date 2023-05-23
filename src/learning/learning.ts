@@ -1,6 +1,6 @@
 //import { Breakout, BreakoutSettings, actions } from '../breakout'
-//import { Flappy, FlappySettings, actions } from '../flappybird'
-import { Circlegame, CirclegameSettings, actions } from '../circlegame';
+import { Flappy, FlappySettings, actions } from '../flappybird'
+//import { Circlegame, CirclegameSettings, actions } from '../circlegame';
 
 import { canvas, ctx } from '../core/utils/canvas'
 import * as tf from '@tensorflow/tfjs'
@@ -53,18 +53,18 @@ export const optimizer = tf.train.adam(0.0003)
 
 
 
-// export function startProgrammaticControlledGame() {
-//     const game = new Flappy()
-//     game.reset()
-//     return game
-// }
-
-
 export function startProgrammaticControlledGame() {
-    const game = new Circlegame();
-    game.reset();
-    return game;
+    const game = new Flappy()
+    game.reset()
+    return game
 }
+
+
+// export function startProgrammaticControlledGame() {
+//     const game = new Circlegame();
+//     game.reset();
+//     return game;
+// }
 
 export function tensorifyMemory(mem): tf.Tensor3D {
     return tf.tidy(() => tf.stack(mem, 2).squeeze())
